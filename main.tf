@@ -14,13 +14,16 @@ data "aws_ami" "gitlab_ami" {
   owners = ["099720109477"] # AWS Marketplace
 }
 
+data "aws_vpc" "default" {
+  default = true
+}
 
 data "aws_vpc" "default" {
   default = true
 }
 
 resource "aws_instance" "web" {
-  ami           = data.aws_ami.gitlab_ami.id
+  ami           = data.aws_ami.app_ami.id
   instance_type = var.instance_type
 
   vpc_security_group_ids = [module.security-group.security_group_id]
