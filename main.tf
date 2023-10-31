@@ -1,9 +1,9 @@
-data "aws_ami" "app_ami" {
+data "aws_ami" "gitlab_ami" {
   most_recent = true
 
   filter {
     name   = "name"
-    values = ["bitnami-tomcat-*-x86_64-hvm-ebs-nami"]
+    values = ["gitlab-ce-16.5.0-ubuntu-20.04-*"]
   }
 
   filter {
@@ -11,7 +11,7 @@ data "aws_ami" "app_ami" {
     values = ["hvm"]
   }
 
-  owners = ["979382823631"] # Bitnami
+  owners = ["099720109477"] # AWS Marketplace
 }
 
 data "aws_vpc" "default" {
