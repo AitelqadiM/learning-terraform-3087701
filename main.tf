@@ -1,9 +1,9 @@
-data "aws_ami" "gitlab_ami" {
+data "aws_ami" "app_ami" {
   most_recent = true
 
   filter {
     name   = "name"
-    values = ["gitlab-ce-16.5.0-ubuntu-20.04-*"]
+    values = ["bitnami-tomcat-*-x86_64-hvm-ebs-nami"]
   }
 
   filter {
@@ -11,7 +11,7 @@ data "aws_ami" "gitlab_ami" {
     values = ["hvm"]
   }
 
-  owners = ["099720109477"] # AWS Marketplace
+  owners = ["979382823631"] # Bitnami
 }
 
 data "aws_vpc" "default" {
@@ -41,4 +41,44 @@ module "security-group" {
 
   egress_rules = ["all-all"]
   egress_cidr_blocks = ["0.0.0.0/0"]
+}
+
+resource "aws_security_group" "web" {
+  name        = "web"
+  description = "Allow http and https in, allow everything out"
+
+  vpc_id = data.aws_vpc.default.id
+}
+
+resource "aws_security_group_rule" "web_http_in" {
+  type       = "ingress"
+  from_port  = 80
+  to_port    = 80
+  protocol   = "tcp"
+  cidr_blocks = ["0.0.0.0/0"]
+
+  security_group_id = aws_security_group.web.id
+
+}
+
+resource "aws_security_group_rule" "web_https_in" {
+  type       = "ingress"
+  from_port  = 443
+  to_port    = 443
+  protocol   = "tcp"
+  cidr_blocks = ["0.0.0.0/0"]
+
+  security_group_id = aws_security_group.web.id
+
+}
+
+resource "aws_security_group_rule" "web_everything_out" {
+  type       = "egress"
+  from_port  = 0
+  to_port    = 0
+  protocol   = "-1"
+  cidr_blocks = ["0.0.0.0/0"]
+
+  security_group_id = aws_security_group.web.id
+
 }
