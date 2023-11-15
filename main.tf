@@ -1,17 +1,16 @@
-data "aws_ami" "app_ami" {
+provider "aws" {
+  region = "us-east-1"  # Replace with your desired AWS region
+}
+
+data "aws_ami" "linux_ami" {
   most_recent = true
 
   filter {
     name   = "name"
-    values = ["bitnami-tomcat-*-x86_64-hvm-ebs-nami"]
+    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
   }
 
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
-
-  owners = ["979382823631"] # Bitnami
+  owners = ["099720109477"] # Canonical
 }
 
 data "aws_vpc" "default" {
@@ -19,14 +18,22 @@ data "aws_vpc" "default" {
 }
 
 resource "aws_instance" "web" {
-  ami           = data.aws_ami.app_ami.id
-  instance_type = var.instance_type
+  ami           = data.aws_ami.linux_ami.id
+  instance_type = "t2.micro"  # Replace with your desired instance type
 
   vpc_security_group_ids = [module.security-group.security_group_id]
 
   tags = {
     Name = "HelloWorld"
   }
+
+  user_data = <<-EOF
+              #!/bin/bash
+              sudo apt-get update -y
+              sudo apt-get install -y docker.io
+              sudo systemctl enable docker
+              sudo systemctl start docker
+              EOF
 }
 
 module "security-group" {
