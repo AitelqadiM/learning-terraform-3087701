@@ -1,7 +1,3 @@
-provider "aws" {
-  region = "us-east-1"  # Replace with your desired AWS region
-}
-
 data "aws_ami" "linux_ami" {
   most_recent = true
 
